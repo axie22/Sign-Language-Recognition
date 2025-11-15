@@ -1,5 +1,3 @@
-# src/train_mlp.py
-
 from __future__ import annotations
 from pathlib import Path
 
@@ -9,10 +7,7 @@ from torch.utils.data import TensorDataset, DataLoader, random_split
 import torch.nn as nn
 import torch.optim as optim
 
-from models.model_MLP import LandmarkMLP  # if you run `python src/train_mlp.py`
-# If you prefer `python -m src.train_mlp`, change to:
-# from .model_mlp import LandmarkMLP
-
+from models.model_MLP import LandmarkMLP
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DATA_PATH = PROJECT_ROOT / "data" / "webcam_landmarks.npz"
@@ -23,8 +18,8 @@ OUT_PATH = MODELS_DIR / "mlp_webcam.pt"
 
 def load_dataset():
     data = np.load(DATA_PATH)
-    X = data["X"]  # shape: (N, 63)
-    y = data["y"]  # shape: (N,)
+    X = data["X"]
+    y = data["y"]
 
     print(f"Loaded landmarks: X shape={X.shape}, y shape={y.shape}")
 
@@ -67,7 +62,7 @@ def train(
     best_val_acc = 0.0
 
     for epoch in range(1, num_epochs + 1):
-        # ---- Train ----
+        # Train
         model.train()
         running_loss = 0.0
 
@@ -85,7 +80,7 @@ def train(
 
         train_loss = running_loss / len(train_ds)
 
-        # ---- Validate ----
+        # Validate
         model.eval()
         correct = 0
         total = 0

@@ -41,7 +41,7 @@ class MediaPipeHandDetector:
         Returns a list of HandLandmarks objects (possibly empty).
         """
         # MediaPipe expects RGB
-        frame_rgb = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2RGB) # type: ignore[attr-defined]
+        frame_rgb = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2RGB)
         results = self.hands.process(frame_rgb)
 
         landmarks_list: List[HandLandmarks] = []
@@ -53,8 +53,8 @@ class MediaPipeHandDetector:
                 pts = []
                 for lm in hand_landmarks.landmark:
                     pts.append([lm.x, lm.y, lm.z])
-                pts = np.array(pts, dtype=np.float32)  # (21, 3)
-                label = handedness.classification[0].label  # "Left" or "Right"
+                pts = np.array(pts, dtype=np.float32)
+                label = handedness.classification[0].label
                 landmarks_list.append(HandLandmarks(points=pts, handedness=label))
 
         return landmarks_list
@@ -78,9 +78,9 @@ def normalize_landmarks(pts: np.ndarray) -> np.ndarray:
     """
     assert pts.shape == (21, 3)
     wrist = pts[0].copy()
-    centered = pts - wrist  # translate
+    centered = pts - wrist 
 
-    # scale: use max L2 distance to any point
+    # Use max L2 distance to any point
     dists = np.linalg.norm(centered, axis=1)
     max_dist = np.max(dists)
     if max_dist > 0:
@@ -98,7 +98,7 @@ def draw_hand_landmarks_on_frame(frame_bgr: np.ndarray, hand: HandLandmarks) -> 
         hand: HandLandmarks with points in normalized [0,1] coordinates.
     """
     h, w, _ = frame_bgr.shape
-    pts = hand.points  # (21, 3), normalized
+    pts = hand.points 
 
     # Convert normalized (x,y) to pixel coords
     pixel_pts = []
@@ -107,7 +107,7 @@ def draw_hand_landmarks_on_frame(frame_bgr: np.ndarray, hand: HandLandmarks) -> 
         py = int(y * h)
         pixel_pts.append((px, py))
 
-    # Draw connections (approximate MediaPipe HAND_CONNECTIONS)
+    # Draw connections
     for connection in HAND_CONNECTIONS:
         i = connection[0]
         j = connection[1]
@@ -119,7 +119,6 @@ def draw_hand_landmarks_on_frame(frame_bgr: np.ndarray, hand: HandLandmarks) -> 
     for (px, py) in pixel_pts:
         cv2.circle(frame_bgr, (px, py), 4, (0, 0, 255), -1)
 
-    # Optional: label handedness
     cv2.putText(
         frame_bgr,
         hand.handedness,

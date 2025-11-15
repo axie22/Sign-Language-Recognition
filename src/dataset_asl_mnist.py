@@ -20,7 +20,6 @@ def load_label_maps(label_map_path: Optional[Path] = None):
         raw_label_to_index (dict[int, int])
     """
     if label_map_path is None:
-        # project_root/ data/ label_map.json
         label_map_path = Path(__file__).resolve().parents[1] / "data" / "label_map.json"
 
     with open(label_map_path, "r") as f:
@@ -57,10 +56,8 @@ class ASLMNISTDataset(Dataset):
             as_pil: If True, __getitem__ returns PIL.Image instead of tensor
                     (useful if you want to handle transforms outside).
         """
-        # Load HF dataset
         self.dataset = load_dataset("Voxel51/American-Sign-Language-MNIST", split=split)
 
-        # Load label mappings
         (
             self.index_to_letter,
             self.letter_to_index,
@@ -77,19 +74,18 @@ class ASLMNISTDataset(Dataset):
         sample = self.dataset[idx]
 
         # HF gives us 28x28 grayscale images
-        # Sometimes as numpy arrays; convert to PIL for consistency
+        # Convert to PIL for consistency
         img = sample["image"]
         if not isinstance(img, Image.Image):
             img = Image.fromarray(img)
 
         raw_label = int(sample["label"])
-        label = self.raw_label_to_index[raw_label]  # map to [0..23] contiguous
+        label = self.raw_label_to_index[raw_label]
 
         if self.as_pil:
-            # (PIL image, integer label)
             return img, label
 
-        # Default: convert to tensor if no custom transform is provided
+        # Convert to tensor if no custom transform is provided
         if self.transform is not None:
             img_tensor = self.transform(img)
         else:

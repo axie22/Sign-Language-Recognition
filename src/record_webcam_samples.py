@@ -48,7 +48,6 @@ def main():
         if not ret:
             break
 
-        # Flip horizontally so it feels like a mirror
         frame = cv2.flip(frame, 1)
 
         # Detect hand landmarks
@@ -99,9 +98,8 @@ def main():
 
         # If we have a current label AND a hand is detected, record a sample
         if current_letter is not None and hands:
-            # Take the first hand
             hl = hands[0]
-            feat = normalize_landmarks(hl.points)  # shape (63,)
+            feat = normalize_landmarks(hl.points)
             X.append(feat)
             y.append(letter_to_index[current_letter])
 

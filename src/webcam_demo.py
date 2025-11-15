@@ -28,7 +28,6 @@ MODEL_PATH = MODELS_DIR / "mlp_webcam.pt"
 def load_index_to_letter():
     with open(LABEL_MAP_PATH, "r") as f:
         mapping = json.load(f)
-    # keys are strings in JSON; convert to int
     index_to_letter = {int(k): v for k, v in mapping["index_to_letter"].items()}
     return index_to_letter
 
@@ -36,7 +35,6 @@ def load_index_to_letter():
 def main():
     index_to_letter = load_index_to_letter()
 
-    # Infer num_classes from label map
     num_classes = len(index_to_letter)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -54,7 +52,6 @@ def main():
         if not ret:
             break
 
-        # Mirror
         frame = cv2.flip(frame, 1)
 
         hands = detector.process(frame)
@@ -62,12 +59,10 @@ def main():
         pred_conf = 0.0
 
         if hands:
-            # Draw landmarks for visualization
             draw_hand_landmarks_on_frame(frame, hands[0])
 
-            # Prepare features for model
-            feat = normalize_landmarks(hands[0].points)  # (63,)
-            x = torch.from_numpy(feat).unsqueeze(0).to(device)  # (1, 63)
+            feat = normalize_landmarks(hands[0].points)
+            x = torch.from_numpy(feat).unsqueeze(0).to(device)
 
             with torch.no_grad():
                 logits = model(x)
@@ -76,14 +71,13 @@ def main():
                 conf = conf.item()
                 idx = idx.item()
 
-            if conf > 0.5:  # threshold
+            if conf > 0.5:
                 pred_letter = index_to_letter.get(idx, "?")
                 pred_conf = conf
             else:
                 pred_letter = "-"
                 pred_conf = conf
 
-        # Overlay prediction on the frame
         text = f"Pred: {pred_letter} ({pred_conf:.2f})"
         cv2.putText(
             frame,
