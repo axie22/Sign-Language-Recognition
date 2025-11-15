@@ -5,11 +5,14 @@ name = "pypi"
 
 [packages]
 tensorflow = "*"
-torch = "*"
 datasets = "*"
 torchvision = "*"
+opencv-python = "*"
+mediapipe = "*"
+numpy = "*"
+torch = "*"
 
 [dev-packages]
 
 [requires]
-python_version = "3.13"
+python_version = "3.10"
